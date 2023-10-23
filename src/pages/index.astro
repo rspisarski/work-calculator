@@ -1,0 +1,74 @@
+---
+
+---
+
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+	<meta name="viewport" content="width=device-width" />
+	<meta name="generator" content={Astro.generator} />
+	<title>Catrin's Calculate</title>
+</head>
+<body class="min-h-screen flex items-center justify-center">
+	<div class="container max-w-md">
+		<h1 class="text-center text-3xl font-extrabold mb-4">Catrin's Calculate</h1>
+		
+		<form id="workdayForm" class="w-full flex flex-col gap-6 p-10 bg-slate-100 rounded border border-slate-200">
+			
+			<div class="flex flex-col gap-3">
+				<label for="workdays" class="font-extrabold">Number of Workdays in the Month:</label>
+				<input class='form-input px-4 py-3 rounded border-slate-400' type="number" id="workdays" name="workdays" required>
+			</div>
+			
+			<div class="flex flex-col gap-3">
+				<label for="supervisors" class="font-extrabold">Number of Supervisors:</label>
+				<input class='form-input px-4 py-3 rounded border-slate-400' type="number" id="supervisors" name="supervisors" required>
+			</div>
+			
+			<button class="px-4 py-2 bg-purple-600 rounded text-white" type="button" onclick="
+			distributeWork()
+			">Calculate Distribution</button>
+		</form>
+		<div class="p-12 bg-green-200 mt-3 hidden" id="result"></div>
+	</div>
+	
+	<script is:inline>
+	function distributeWork() {
+		const workdaysInMonth = parseInt(document.getElementById("workdays").value);
+		const supervisors = parseInt(document.getElementById("supervisors").value);
+		const result = distributeWorkDays(workdaysInMonth, supervisors);
+		document.getElementById("result").innerHTML = result;
+		document.getElementById("result").classList.remove("hidden");
+	}
+
+	function distributeWorkDays(workdays, supervisors) {
+		const daysPerSupervisor = Math.floor(workdays / supervisors);
+		const extraDays = workdays % supervisors;
+
+		const distribution = Array.from({ length: supervisors }, (_, index) => {
+			if (index < extraDays) {
+				return daysPerSupervisor + 1;
+			}
+			return daysPerSupervisor;
+		});
+
+		const groupedDistribution = distribution.reduce((acc, days) => {
+			if (!acc[days]) {
+				acc[days] = 0;
+			}
+			acc[days]++;
+			return acc;
+		}, {});
+
+		const output = Object.entries(groupedDistribution)
+			.map(([days, count]) => `${count} Supervisor${count > 1 ? 's' : ''} work ${days} day${days > 1 ? 's' : ''}`)
+			.join('<br> ');
+
+		return output;
+	}
+	</script>
+	
+</body>
+
+</html>
